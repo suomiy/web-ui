@@ -36,10 +36,12 @@ export const flavors = [
 
 export const workloadProfiles = [
   {
+    id: 'profile-one',
     name: 'WorkloadProfile1',
     description: 'profile description'
   },
   {
+    id: 'profile-two',
     name: 'WorkloadProfile2',
     description: 'profile description'
   }

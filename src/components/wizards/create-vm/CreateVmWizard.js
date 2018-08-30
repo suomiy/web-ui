@@ -80,17 +80,19 @@ export class CreateVmWizard extends React.Component {
       type: 'textarea'
     },
     namespace: {
+      id: 'namespace-dropdown',
       title: 'Namespace',
       type: 'dropdown',
-      default: '--- Select Namespace ---',
-      values: this.props.namespaces,
+      defaultValue: '--- Select Namespace ---',
+      choices: this.props.namespaces,
       required: true
     },
     imageSourceType: {
+      id: 'image-source-type-dropdown',
       title: 'Provision Source',
       type: 'dropdown',
-      default: '--- Select Provision Source ---',
-      values: [
+      defaultValue: '--- Select Provision Source ---',
+      choices: [
         {
           name: 'PXE'
         },
@@ -107,12 +109,13 @@ export class CreateVmWizard extends React.Component {
       required: true
     },
     template: {
+      id: 'template-dropdown',
       title: 'Template',
       type: 'dropdown',
-      default: '--- Select Template ---',
+      defaultValue: '--- Select Template ---',
       required: true,
       isVisible: basicVmSettings => get(basicVmSettings, 'imageSourceType.value') === 'Template',
-      values: this.props.templates
+      choices: this.props.templates
     },
     registryImage: {
       title: 'Registry Image',
@@ -125,17 +128,19 @@ export class CreateVmWizard extends React.Component {
       isVisible: basicVmSettings => get(basicVmSettings, 'imageSourceType.value') === 'URL'
     },
     operatingSystem: {
+      id: 'operating-system-dropdown',
       title: 'Operating System',
       type: 'dropdown',
-      default: '--- Select Operating System ---',
-      values: this.props.operatingSystems,
+      defaultValue: '--- Select Operating System ---',
+      choices: this.props.operatingSystems,
       required: true
     },
     flavor: {
+      id: 'flavor-dropdown',
       title: 'Flavor',
       type: 'dropdown',
-      default: '--- Select Flavor ---',
-      values: this.props.flavors.concat([{ name: 'Custom' }]),
+      defaultValue: '--- Select Flavor ---',
+      choices: this.props.flavors.concat([{ name: 'Custom' }]),
       required: true
     },
     memory: {
@@ -151,14 +156,15 @@ export class CreateVmWizard extends React.Component {
       validate: currentValue => (isPositiveNumber(currentValue) ? undefined : 'must be a number')
     },
     workloadProfile: {
+      id: 'workload-profile-dropdown',
       title: 'Workload Profile',
       type: 'dropdown',
-      default: '--- Select Workload Profile ---',
-      values: this.props.workloadProfiles,
+      defaultValue: '--- Select Workload Profile ---',
+      choices: this.props.workloadProfiles,
       required: true,
       help: () =>
         this.props.workloadProfiles.map(value => (
-          <p>
+          <p key={value.id}>
             <b>{value.name}</b>: {value.description}
           </p>
         ))

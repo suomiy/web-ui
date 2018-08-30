@@ -32,7 +32,6 @@ exports[`<FormFactory /> renders correctly 1`] = `
       sm={5}
     >
       <Component
-        fieldKey="textField"
         onChange={[Function]}
         value="textFieldValue"
       />

@@ -2,18 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, DropdownButton, MenuItem } from 'patternfly-react';
 import './Dropdown.css';
+import { valueHandler } from './utils';
 
-export const Dropdown = ({ fieldKey, value, choices, onChange }) => (
-  <ButtonGroup justified>
+export const Dropdown = ({ id, value, onChange, onBlur, choices }) => (
+  <ButtonGroup justified key={id}>
     <DropdownButton
-      id={`dropdown-${fieldKey}`}
+      id={id}
       bsStyle="default"
       className="form-dropdown"
       title={value}
-      onSelect={v => onChange(v, fieldKey)}
+      onSelect={valueHandler(onChange)}
+      onBlur={valueHandler(onBlur)}
     >
       {choices.map(choice => (
-        <MenuItem key={choice.id ? choice.id : choice.name} eventKey={choice.id ? choice.id : choice.name}>
+        <MenuItem key={choice.id || choice.name} eventKey={choice.id || choice.name}>
           {choice.name}
         </MenuItem>
       ))}
@@ -21,9 +23,16 @@ export const Dropdown = ({ fieldKey, value, choices, onChange }) => (
   </ButtonGroup>
 );
 
+Dropdown.defaultProps = {
+  id: null,
+  onChange: null,
+  onBlur: null
+};
+
 Dropdown.propTypes = {
-  fieldKey: PropTypes.string.isRequired,
+  id: PropTypes.string,
   value: PropTypes.string.isRequired,
   choices: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func
 };

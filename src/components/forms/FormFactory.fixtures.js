@@ -23,8 +23,8 @@ export const allFormFields = {
   dropdownField: {
     title: 'dropdownField',
     type: 'dropdown',
-    default: 'default',
-    values: [
+    defaultValue: 'default',
+    choices: [
       {
         name: 'value1'
       },

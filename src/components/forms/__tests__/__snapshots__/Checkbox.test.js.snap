@@ -6,6 +6,7 @@ exports[`<CheckboxControl /> renders correctly 1`] = `
   checked={true}
   disabled={false}
   inline={false}
+  onBlur={null}
   onChange={[Function]}
   title=""
 >

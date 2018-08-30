@@ -5,12 +5,14 @@ exports[`<DropdownControl /> renders correctly 1`] = `
   block={false}
   bsClass="btn-group"
   justified={true}
+  key="null"
   vertical={false}
 >
   <DropdownButton
     bsStyle="default"
     className="form-dropdown"
-    id="dropdown-key"
+    id={null}
+    onBlur={null}
     onSelect={[Function]}
     title="val"
   >
