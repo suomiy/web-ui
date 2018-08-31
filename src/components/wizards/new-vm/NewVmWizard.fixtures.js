@@ -1,18 +1,44 @@
 export const storageClasses = [
   {
-    name: 'storage name 1',
-    class: 'storage class 1',
-    size: 10
+    name: 'NFS',
+    id: 'nfs'
   },
   {
-    name: 'storage name 2',
-    class: 'storage class 2',
-    size: 20
+    name: 'iSCSI',
+    id: 'iscsi'
   },
   {
-    name: 'storage name 3',
-    class: 'storage class 3',
-    size: 30
+    name: 'Glusterfs',
+    id: 'glusterfs'
+  },
+  {
+    name: 'AzureDisk',
+    id: 'azuredisk'
+  },
+  {
+    name: 'Local',
+    id: 'local'
+  }
+];
+
+export const storages = [
+  {
+    id: 'disk-one',
+    name: 'disk One',
+    size: '10',
+    storageClass: 'nfs'
+  },
+  {
+    id: 'disk-two',
+    name: 'disk Two',
+    size: '15',
+    storageClass: 'glusterfs'
+  },
+  {
+    id: 'disk-three',
+    name: 'disk Three',
+    size: '20',
+    storageClass: 'iscsi'
   }
 ];
 

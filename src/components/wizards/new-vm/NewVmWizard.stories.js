@@ -4,7 +4,7 @@ import { NewVmWizard } from './NewVmWizard';
 import { Button } from 'patternfly-react';
 import { os } from './OperatingSystem';
 import { createVM } from '../../../k8s/request';
-import { storageClasses, workloadProfiles, flavors, templates, namespaces } from './NewVmWizard.fixtures';
+import { storageClasses, workloadProfiles, flavors, templates, namespaces, storages } from './NewVmWizard.fixtures';
 
 class NewVmWizardExample extends React.Component {
   state = {
@@ -31,6 +31,7 @@ class NewVmWizardExample extends React.Component {
           <NewVmWizard
             onHide={this.onHide}
             storageClasses={storageClasses}
+            storages={storages}
             workloadProfiles={workloadProfiles}
             flavors={flavors}
             namespaces={namespaces}

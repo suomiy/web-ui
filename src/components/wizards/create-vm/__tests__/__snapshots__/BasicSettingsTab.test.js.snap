@@ -1,0 +1,182 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<CreateVmWizard /> renders correctly 1`] = `
+<Component
+  fields={
+    Object {
+      "authKeys": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "Authenticated SSH Keys",
+        "type": "textarea",
+      },
+      "cloudInit": Object {
+        "title": "Use cloud-init",
+        "type": "checkbox",
+      },
+      "cpu": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "CPUs",
+        "validate": [Function],
+      },
+      "createTemplate": Object {
+        "noBottom": true,
+        "title": "Create new template from configuration",
+        "type": "checkbox",
+      },
+      "description": Object {
+        "title": "Description",
+        "type": "textarea",
+      },
+      "flavor": Object {
+        "choices": Array [
+          Object {
+            "name": "Flavor1",
+          },
+          Object {
+            "name": "Flavor2",
+          },
+          Object {
+            "name": "Custom",
+          },
+        ],
+        "defaultValue": "--- Select Flavor ---",
+        "id": "flavor-dropdown",
+        "required": true,
+        "title": "Flavor",
+        "type": "dropdown",
+      },
+      "hostname": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "Hostname",
+      },
+      "imageSourceType": Object {
+        "choices": Array [
+          Object {
+            "name": "PXE",
+          },
+          Object {
+            "name": "URL",
+          },
+          Object {
+            "name": "Template",
+          },
+          Object {
+            "name": "Registry",
+          },
+        ],
+        "defaultValue": "--- Select Provision Source ---",
+        "id": "image-source-type-dropdown",
+        "required": true,
+        "title": "Provision Source",
+        "type": "dropdown",
+      },
+      "imageURL": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "URL",
+      },
+      "memory": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "Memory (GB)",
+        "validate": [Function],
+      },
+      "name": Object {
+        "required": true,
+        "title": "Name",
+      },
+      "namespace": Object {
+        "choices": Array [
+          Object {
+            "name": "default",
+          },
+          Object {
+            "name": "myproject",
+          },
+        ],
+        "defaultValue": "--- Select Namespace ---",
+        "id": "namespace-dropdown",
+        "required": true,
+        "title": "Namespace",
+        "type": "dropdown",
+      },
+      "operatingSystem": Object {
+        "choices": Array [
+          Object {
+            "id": "alpinelinux3.5",
+            "name": "Alpine Linux 3.5",
+          },
+          Object {
+            "id": "alpinelinux3.6",
+            "name": "Alpine Linux 3.6",
+          },
+          Object {
+            "id": "alpinelinux3.7",
+            "name": "Alpine Linux 3.7",
+          },
+          Object {
+            "id": "altlinux1.0",
+            "name": "Mandrake RE Spring 2001",
+          },
+        ],
+        "defaultValue": "--- Select Operating System ---",
+        "id": "operating-system-dropdown",
+        "required": true,
+        "title": "Operating System",
+        "type": "dropdown",
+      },
+      "registryImage": Object {
+        "isVisible": [Function],
+        "required": true,
+        "title": "Registry Image",
+      },
+      "startVM": Object {
+        "noBottom": true,
+        "title": "Start virtual machine on creation",
+        "type": "checkbox",
+      },
+      "template": Object {
+        "choices": Array [
+          Object {
+            "name": "Template1",
+          },
+          Object {
+            "name": "Template2",
+          },
+        ],
+        "defaultValue": "--- Select Template ---",
+        "id": "template-dropdown",
+        "isVisible": [Function],
+        "required": true,
+        "title": "Template",
+        "type": "dropdown",
+      },
+      "workloadProfile": Object {
+        "choices": Array [
+          Object {
+            "description": "profile description",
+            "id": "profile-one",
+            "name": "WorkloadProfile1",
+          },
+          Object {
+            "description": "profile description",
+            "id": "profile-two",
+            "name": "WorkloadProfile2",
+          },
+        ],
+        "defaultValue": "--- Select Workload Profile ---",
+        "help": [Function],
+        "id": "workload-profile-dropdown",
+        "required": true,
+        "title": "Workload Profile",
+        "type": "dropdown",
+      },
+    }
+  }
+  fieldsValues={Object {}}
+  onFormChange={[Function]}
+/>
+`;

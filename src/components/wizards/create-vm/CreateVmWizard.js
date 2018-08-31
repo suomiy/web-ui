@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wizard } from 'patternfly-react';
-import { createVM } from '../../../k8s/request';
+
 import BasicSettingsTab from './BasicSettingsTab';
+import StorageTab from './StorageTab';
 import ResultTab from './ResultTab';
+
+import { createVM } from '../../../k8s/request';
 
 export class CreateVmWizard extends React.Component {
   state = {
@@ -14,11 +17,18 @@ export class CreateVmWizard extends React.Component {
         valid: false
       },
       {
+        value: [], // Disks
+        valid: true // empty Disks are valid
+      },
+      {
         value: '',
         valid: null // result of the request
       }
     ]
   };
+
+  getLastStepIndex = () => this.state.stepData.length - 1;
+  lastStepReached = () => this.state.activeStepIndex === this.getLastStepIndex();
 
   onStepDataChanged = (value, valid) => {
     this.setState(state => {
@@ -29,15 +39,20 @@ export class CreateVmWizard extends React.Component {
     });
   };
 
-  getLastStepIndex = () => this.state.stepData.length - 1;
-  lastStepReached = () => this.state.activeStepIndex === this.getLastStepIndex();
+  finish() {
+    const stepValuesWithoutResult = this.state.stepData
+      .slice(0, this.state.stepData.length - 1)
+      .map(stepData => stepData.value);
+
+    createVM(...stepValuesWithoutResult)
+      .then(result => this.onStepDataChanged(result, true))
+      .catch(error => this.onStepDataChanged(error.message, false));
+  }
 
   onStepChanged = newActiveStepIndex => {
     // create Vm only once last step is reached
     if (!this.lastStepReached() && newActiveStepIndex === this.getLastStepIndex()) {
-      createVM(this.state.stepData[0].value)
-        .then(result => this.onStepDataChanged(result, true))
-        .catch(error => this.onStepDataChanged(error.message, false));
+      this.finish();
     }
 
     this.setState(state => {
@@ -69,10 +84,21 @@ export class CreateVmWizard extends React.Component {
       )
     },
     {
+      title: 'Storage',
+      render: () => (
+        <StorageTab
+          storageClasses={this.props.storageClasses}
+          storages={this.props.storages}
+          initialDisks={this.state.stepData[1].value}
+          onChange={this.onStepDataChanged}
+        />
+      )
+    },
+    {
       title: 'Result',
       render: () => {
         const stepData = this.state.stepData[this.getLastStepIndex()];
-        return <ResultTab result={stepData.value} successfull={stepData.valid} />;
+        return <ResultTab result={stepData.value} success={stepData.valid} />;
       }
     }
   ];
@@ -102,5 +128,7 @@ CreateVmWizard.propTypes = {
   flavors: PropTypes.array.isRequired,
   operatingSystems: PropTypes.array.isRequired,
   templates: PropTypes.array.isRequired,
-  namespaces: PropTypes.array.isRequired
+  namespaces: PropTypes.array.isRequired,
+  storages: PropTypes.array.isRequired,
+  storageClasses: PropTypes.array.isRequired
 };

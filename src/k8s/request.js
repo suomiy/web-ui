@@ -11,13 +11,13 @@ import {
 } from '../constants';
 import { get } from 'lodash';
 
-export const createVM = (basicSettings, network, storage) => {
-  const vm = generateVmJson(basicSettings, network, storage);
+export const createVM = (basicSettings, storage) => {
+  const vm = generateVmJson(basicSettings, storage);
 
   return createK8sObject(vm);
 };
 
-export const generateVmJson = (basicSettings, network, storage) => {
+export const generateVmJson = (basicSettings, storages) => {
   const vm = {
     apiVersion: API_VERSION,
     kind: VM_KIND,
@@ -29,7 +29,8 @@ export const generateVmJson = (basicSettings, network, storage) => {
       }
     },
     spec: {
-      template: {}
+      template: {},
+      dataVolumeTemplates: []
     }
   };
 
@@ -44,6 +45,7 @@ export const generateVmJson = (basicSettings, network, storage) => {
   addFlavor(vm, basicSettings);
   addImageSourceType(vm, basicSettings);
   addCloudInit(vm, basicSettings);
+  addStorages(vm, storages);
 
   vm.spec.running = basicSettings.startVM ? basicSettings.startVM.value : false;
 
@@ -130,10 +132,84 @@ const addCloudInit = (vm, basicSettings) => {
   }
 };
 
-const addDisk = (vm, diskSpec) => {
+const addStorages = (vm, storages) => {
+  if (storages) {
+    for (const storage of storages) {
+      if (storage.attachStorage) {
+        addPersistentVolumeClaimVolume(vm, storage);
+      } else {
+        addDataVolume(vm, storage);
+      }
+    }
+  }
+};
+
+const addDataVolume = (vm, volume) => {
+  vm.spec.dataVolumeTemplates.push({
+    metadata: {
+      name: volume.name
+    },
+    spec: {
+      accessModes: ['ReadWriteOnce'],
+      pvc: {
+        resources: {
+          requests: {
+            storage: `${volume.size}Gi`
+          }
+        },
+        storageClassName: volume.storageClass
+      },
+      source: {}
+    },
+    status: {}
+  });
+
+  addVolume(vm, {
+    name: volume.name,
+    dataVolume: {
+      name: volume.name
+    }
+  });
+
+  addDisk(
+    vm,
+    {
+      name: volume.name,
+      volumeName: volume.name,
+      disk: {}
+    },
+    volume.isBootable
+  );
+};
+
+const addPersistentVolumeClaimVolume = (vm, volume) => {
+  addVolume(vm, {
+    name: volume.attachStorage.id,
+    persistentVolumeClaim: {
+      claimName: volume.attachStorage.id
+    }
+  });
+
+  addDisk(
+    vm,
+    {
+      name: volume.attachStorage.id,
+      volumeName: volume.attachStorage.id,
+      disk: {}
+    },
+    volume.isBootable
+  );
+};
+
+const addDisk = (vm, diskSpec, isBootable) => {
   const domain = get(vm.spec.template.spec, 'domain', {});
   const devices = get(domain, 'devices', {});
   const disks = get(devices, 'disks', []);
+
+  if (isBootable) {
+    diskSpec.bootOrder = 1;
+  }
+
   disks.push(diskSpec);
   devices.disks = disks;
   domain.devices = devices;
@@ -160,7 +236,7 @@ export const createK8sObject = k8sObject =>
       if (k8sObject.metadata.name === 'fail') {
         reject(new Error('vm.metadata.name cannot be fail'));
       } else {
-        resolve(JSON.stringify(k8sObject));
+        resolve(JSON.stringify(k8sObject, null, 2));
       }
     }, 1300);
   });

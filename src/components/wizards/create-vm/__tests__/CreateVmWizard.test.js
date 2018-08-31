@@ -1,9 +1,21 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { CreateVmWizard } from '../CreateVmWizard';
-import { os } from '../../new-vm/OperatingSystem';
-import { workloadProfiles, flavors, templates, namespaces } from '../../new-vm/NewVmWizard.fixtures';
 import { WizardPattern } from 'patternfly-react';
+
+import { os } from '../../new-vm/OperatingSystem';
+import {
+  workloadProfiles,
+  flavors,
+  templates,
+  namespaces,
+  storages,
+  storageClasses
+} from '../../new-vm/NewVmWizard.fixtures';
+import { validBasicSettings } from './_utils';
+import { CreateVmWizard } from '../CreateVmWizard';
+import { createVM } from '../../../../k8s/request';
+
+jest.mock('../../../../k8s/request');
 
 const onHide = () => {};
 
@@ -15,72 +27,120 @@ const testCreateVmWizard = () => (
     operatingSystems={os}
     templates={templates}
     namespaces={namespaces}
+    storages={storages}
+    storageClasses={storageClasses}
   />
 );
 
+const testWalkThrough = () => {
+  const component = shallow(testCreateVmWizard());
+
+  component.instance().onStepDataChanged(validBasicSettings, true);
+  expect(component.find(WizardPattern).props().nextStepDisabled).toBeFalsy();
+
+  component.instance().onStepChanged(1); // should allow going forward
+  expect(component.state().activeStepIndex).toEqual(1);
+  component.instance().onStepChanged(0); // try to go back
+  expect(component.state().activeStepIndex).toEqual(0);
+
+  component.instance().onStepChanged(1); // forward again
+  expect(component.state().activeStepIndex).toEqual(1);
+  expect(component.find(WizardPattern).props().nextText).toBe('Create Virtual Machine');
+  expect(component.instance().lastStepReached()).toBeFalsy();
+
+  component.instance().onStepDataChanged([{}], false); // create empty disk
+  expect(component.find(WizardPattern).props().nextStepDisabled).toBeTruthy();
+  component.instance().onStepDataChanged(
+    [
+      {
+        id: 1,
+        name: 'D',
+        size: '15',
+        storageClass: 'iscsi',
+        isBootable: true
+      },
+      {
+        id: 2,
+        isBootable: false,
+        attachStorage: {
+          id: 'disk-two',
+          name: 'disk Two',
+          size: '15',
+          storageClass: 'glusterfs'
+        }
+      }
+    ],
+    true
+  );
+
+  expect(createVM).not.toHaveBeenCalled();
+  component.instance().onStepChanged(2); // create vm
+  expect(component.state().activeStepIndex).toEqual(2);
+  expect(component.instance().lastStepReached()).toBeTruthy();
+  expect(createVM).toHaveBeenCalled();
+  expect(component.find(WizardPattern).props().previousStepDisabled).toBeTruthy();
+  component.instance().onStepChanged(0); // should not allow going backwards
+  expect(component.state().activeStepIndex).toEqual(2);
+};
+
 describe('<CreateVmWizard />', () => {
+  beforeEach(() => {
+    createVM.mockClear();
+  });
+
   it('renders correctly', () => {
     const component = shallow(testCreateVmWizard());
     expect(component).toMatchSnapshot();
   });
+
   it('is visible when mounted', () => {
     const component = shallow(testCreateVmWizard());
     expect(component.find(WizardPattern).props().show).toBeTruthy();
   });
-  it('is not valid when initially open', () => {
-    const component = shallow(testCreateVmWizard());
-    expect(component.state().wizardValid).toBeFalsy();
-    expect(component.find(WizardPattern).props().nextStepDisabled).toBeTruthy();
-  });
-  it('onFormChange updates state', () => {
-    const nameValue = 'someName';
-    const component = shallow(testCreateVmWizard());
-    component.instance().onFormChange(nameValue, 'name');
-    expect(component.state().basicSettings.name).toEqual({ value: nameValue });
-  });
-  it('required property is validated', () => {
-    const component = shallow(testCreateVmWizard());
-    component.instance().onFormChange('', 'name');
-    expect(component.state().basicSettings.name).toEqual({ value: '', validMsg: 'Name is required' });
-  });
-  it('cpu field validation is triggered', () => {
-    const component = shallow(testCreateVmWizard());
-    component.instance().onFormChange('someCpu', 'cpu');
-    expect(component.state().basicSettings.cpu).toEqual({ value: 'someCpu', validMsg: 'CPUs must be a number' });
-  });
-  it('memory field validation is triggered', () => {
-    const component = shallow(testCreateVmWizard());
-    component.instance().onFormChange('someMemory', 'memory');
-    expect(component.state().basicSettings.memory).toEqual({
-      value: 'someMemory',
-      validMsg: 'Memory (GB) must be a number'
-    });
-  });
-  it('onStepChanged update state activeStepIndex', () => {
+
+  it("onStepChanged doesn't update activeStepIndex due to invalid form", () => {
     const component = shallow(testCreateVmWizard());
     expect(component.state().activeStepIndex).toEqual(0);
     component.instance().onStepChanged(1);
-    expect(component.state().activeStepIndex).toEqual(1);
+    expect(component.state().activeStepIndex).toEqual(0);
   });
-  it('is valid when all required fields are filled', () => {
+
+  it('checks initial values', () => {
     const component = shallow(testCreateVmWizard());
-    expect(component.state().wizardValid).toBeFalsy();
     expect(component.find(WizardPattern).props().nextStepDisabled).toBeTruthy();
+    expect(component.find(WizardPattern).props().nextText).toBe('Next');
+    expect(component.find(WizardPattern).props().steps).toHaveLength(3);
+    expect(component.instance().getLastStepIndex()).toBe(2);
+  });
 
-    component.instance().onFormChange('name', 'name');
-    component.instance().onFormChange('namespace', 'namespace');
-    component.instance().onFormChange('PXE', 'imageSourceType');
-    component.instance().onFormChange('operatingSystem', 'operatingSystem');
-    component.instance().onFormChange('flavor', 'flavor');
-    component.instance().onFormChange('workloadProfile', 'workloadProfile');
+  it('changes next step disability', () => {
+    const component = shallow(testCreateVmWizard());
 
-    expect(component.state().wizardValid).toBeTruthy();
+    component.instance().onStepDataChanged(validBasicSettings, true);
+    expect(component.state().stepData[0].value).toEqual(validBasicSettings);
+    expect(component.state().stepData[0].valid).toBeTruthy();
     expect(component.find(WizardPattern).props().nextStepDisabled).toBeFalsy();
 
     // new required field will become visible
-    component.instance().onFormChange('URL', 'imageSourceType');
-
-    expect(component.state().wizardValid).toBeFalsy();
+    component.instance().onStepDataChanged(
+      {
+        ...validBasicSettings,
+        imageSourceType: {
+          value: 'URL'
+        }
+      },
+      false
+    );
     expect(component.find(WizardPattern).props().nextStepDisabled).toBeTruthy();
+  });
+
+  it('creates vm', () => {
+    createVM.mockReturnValueOnce(new Promise((resolve, reject) => resolve('VM created')));
+    testWalkThrough();
+  });
+
+  it('fails creating the vm', () => {
+    createVM.mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error('VM not created'))));
+    testWalkThrough();
   });
 });

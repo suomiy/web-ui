@@ -1,0 +1,274 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<EditableDraggableTable /> renders correctly 1`] = `
+<ContextProvider
+  value={
+    Object {
+      "dragDropManager": DragDropManagerImpl {
+        "backend": HTML5Backend {
+          "actions": Object {
+            "beginDrag": [Function],
+            "drop": [Function],
+            "endDrag": [Function],
+            "hover": [Function],
+            "publishDragSource": [Function],
+          },
+          "altKeyPressed": false,
+          "asyncEndDragFrameId": null,
+          "context": Object {},
+          "currentDragSourceNode": null,
+          "currentDragSourceNodeOffset": null,
+          "currentDragSourceNodeOffsetChanged": false,
+          "currentNativeHandle": null,
+          "currentNativeSource": null,
+          "dragEnterTargetIds": Array [],
+          "dragOverTargetIds": null,
+          "dragStartSourceIds": null,
+          "dropTargetIds": Array [],
+          "enterLeaveCounter": EnterLeaveCounter {
+            "entered": Array [],
+          },
+          "monitor": DragDropMonitorImpl {
+            "registry": HandlerRegistryImpl {
+              "dragSources": Map {},
+              "dropTargets": Map {},
+              "pinnedSource": null,
+              "pinnedSourceId": null,
+              "store": Object {
+                "dispatch": [Function],
+                "getState": [Function],
+                "replaceReducer": [Function],
+                "subscribe": [Function],
+                Symbol(observable): [Function],
+              },
+              "types": Map {},
+            },
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+          },
+          "mouseMoveTimeoutTimer": null,
+          "registry": HandlerRegistryImpl {
+            "dragSources": Map {},
+            "dropTargets": Map {},
+            "pinnedSource": null,
+            "pinnedSourceId": null,
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+            "types": Map {},
+          },
+          "sourceNodeOptions": Map {},
+          "sourceNodes": Map {},
+          "sourcePreviewNodeOptions": Map {},
+          "sourcePreviewNodes": Map {},
+        },
+        "context": Object {},
+        "isSetUp": false,
+        "monitor": DragDropMonitorImpl {
+          "registry": HandlerRegistryImpl {
+            "dragSources": Map {},
+            "dropTargets": Map {},
+            "pinnedSource": null,
+            "pinnedSourceId": null,
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+            "types": Map {},
+          },
+          "store": Object {
+            "dispatch": [Function],
+            "getState": [Function],
+            "replaceReducer": [Function],
+            "subscribe": [Function],
+            Symbol(observable): [Function],
+          },
+        },
+        "store": Object {
+          "dispatch": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+          Symbol(observable): [Function],
+        },
+      },
+    }
+  }
+>
+  <EditableDraggableTable
+    columns={
+      Array [
+        Object {
+          "header": Object {
+            "label": "One",
+          },
+          "property": "one",
+        },
+        Object {
+          "header": Object {
+            "label": "Two",
+          },
+          "property": "two",
+        },
+      ]
+    }
+    onChange={[Function]}
+    rows={Array []}
+  />
+</ContextProvider>
+`;
+
+exports[`<EditableDraggableTable /> renders data correctly 1`] = `
+<ContextProvider
+  value={
+    Object {
+      "dragDropManager": DragDropManagerImpl {
+        "backend": HTML5Backend {
+          "actions": Object {
+            "beginDrag": [Function],
+            "drop": [Function],
+            "endDrag": [Function],
+            "hover": [Function],
+            "publishDragSource": [Function],
+          },
+          "altKeyPressed": false,
+          "asyncEndDragFrameId": null,
+          "context": Object {},
+          "currentDragSourceNode": null,
+          "currentDragSourceNodeOffset": null,
+          "currentDragSourceNodeOffsetChanged": false,
+          "currentNativeHandle": null,
+          "currentNativeSource": null,
+          "dragEnterTargetIds": Array [],
+          "dragOverTargetIds": null,
+          "dragStartSourceIds": null,
+          "dropTargetIds": Array [],
+          "enterLeaveCounter": EnterLeaveCounter {
+            "entered": Array [],
+          },
+          "monitor": DragDropMonitorImpl {
+            "registry": HandlerRegistryImpl {
+              "dragSources": Map {},
+              "dropTargets": Map {},
+              "pinnedSource": null,
+              "pinnedSourceId": null,
+              "store": Object {
+                "dispatch": [Function],
+                "getState": [Function],
+                "replaceReducer": [Function],
+                "subscribe": [Function],
+                Symbol(observable): [Function],
+              },
+              "types": Map {},
+            },
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+          },
+          "mouseMoveTimeoutTimer": null,
+          "registry": HandlerRegistryImpl {
+            "dragSources": Map {},
+            "dropTargets": Map {},
+            "pinnedSource": null,
+            "pinnedSourceId": null,
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+            "types": Map {},
+          },
+          "sourceNodeOptions": Map {},
+          "sourceNodes": Map {},
+          "sourcePreviewNodeOptions": Map {},
+          "sourcePreviewNodes": Map {},
+        },
+        "context": Object {},
+        "isSetUp": false,
+        "monitor": DragDropMonitorImpl {
+          "registry": HandlerRegistryImpl {
+            "dragSources": Map {},
+            "dropTargets": Map {},
+            "pinnedSource": null,
+            "pinnedSourceId": null,
+            "store": Object {
+              "dispatch": [Function],
+              "getState": [Function],
+              "replaceReducer": [Function],
+              "subscribe": [Function],
+              Symbol(observable): [Function],
+            },
+            "types": Map {},
+          },
+          "store": Object {
+            "dispatch": [Function],
+            "getState": [Function],
+            "replaceReducer": [Function],
+            "subscribe": [Function],
+            Symbol(observable): [Function],
+          },
+        },
+        "store": Object {
+          "dispatch": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+          Symbol(observable): [Function],
+        },
+      },
+    }
+  }
+>
+  <EditableDraggableTable
+    columns={
+      Array [
+        Object {
+          "header": Object {
+            "label": "One",
+          },
+          "property": "one",
+        },
+        Object {
+          "header": Object {
+            "label": "Two",
+          },
+          "property": "two",
+        },
+      ]
+    }
+    onChange={[Function]}
+    rows={
+      Array [
+        Object {
+          "id": 1,
+          "one": "First Column",
+          "two": "Second Column",
+        },
+        Object {
+          "id": 2,
+          "one": "F Column",
+          "two": "S Column",
+        },
+      ]
+    }
+  />
+</ContextProvider>
+`;

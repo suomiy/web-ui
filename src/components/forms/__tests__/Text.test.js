@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { Text } from '../';
 
-const testTextControl = () => <Text id="1" onChange={() => {}} value="val" />;
+const testTextControl = () => <Text id="1" onChange={jest.fn()} value="val" />;
 
 describe('<TextControl />', () => {
   it('renders correctly', () => {

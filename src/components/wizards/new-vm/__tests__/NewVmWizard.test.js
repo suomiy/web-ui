@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { NewVmWizard } from '../NewVmWizard';
-import { workloadProfiles, flavors, templates, namespaces } from '../NewVmWizard.fixtures';
+import { workloadProfiles, flavors, templates, namespaces, storages, storageClasses } from '../NewVmWizard.fixtures';
 import { os } from '../OperatingSystem';
 import { CreateVmWizard } from '../../create-vm/CreateVmWizard';
 import { ImportVmWizard } from '../../import-vm/ImportVmWizard';
@@ -14,6 +14,8 @@ const testNewVmWizard = () => (
     operatingSystems={os}
     templates={templates}
     namespaces={namespaces}
+    storages={storages}
+    storageClasses={storageClasses}
   />
 );
 

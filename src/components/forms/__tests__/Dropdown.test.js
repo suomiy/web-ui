@@ -4,7 +4,7 @@ import { Dropdown } from '../Dropdown';
 import { allFormFields } from '../FormFactory.fixtures';
 
 const testDropdownControl = () => (
-  <Dropdown fieldKey="key" onChange={() => {}} value="val" choices={allFormFields.dropdownField.choices} />
+  <Dropdown fieldKey="key" onChange={jest.fn()} value="val" choices={allFormFields.dropdownField.choices} />
 );
 
 describe('<DropdownControl />', () => {

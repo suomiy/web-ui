@@ -114,7 +114,8 @@ const minimalVM = {
           }
         ]
       }
-    }
+    },
+    dataVolumeTemplates: []
   }
 };
 
