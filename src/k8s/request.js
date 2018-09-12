@@ -14,7 +14,7 @@ import { get } from 'lodash';
 export const createVM = (basicSettings, network, storage) => {
   const vm = generateVmJson(basicSettings, network, storage);
 
-  createK8sObject(vm);
+  return createK8sObject(vm);
 };
 
 export const generateVmJson = (basicSettings, network, storage) => {
@@ -154,7 +154,13 @@ const appendToUserData = (userData, key, value) => {
   return userData;
 };
 
-export const createK8sObject = k8sObject => {
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify(k8sObject, null, 2));
-};
+export const createK8sObject = k8sObject =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (k8sObject.metadata.name === 'fail') {
+        reject(new Error('vm.metadata.name cannot be fail'));
+      } else {
+        resolve(JSON.stringify(k8sObject));
+      }
+    }, 1300);
+  });

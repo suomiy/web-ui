@@ -1,226 +1,85 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Wizard } from 'patternfly-react';
-import { get } from 'lodash';
 import { createVM } from '../../../k8s/request';
-import { FormFactory } from '../../forms/FormFactory';
-import { isPositiveNumber } from '../../../utils/validation';
+import BasicSettingsTab from './BasicSettingsTab';
+import ResultTab from './ResultTab';
 
 export class CreateVmWizard extends React.Component {
   state = {
     activeStepIndex: 0,
-    basicVmSettings: {},
-    wizardValid: false
-  };
-
-  onFormChange = (newValue, target) => {
-    let validMsg;
-
-    if (this.basicFormFields[target].validate) {
-      validMsg = this.basicFormFields[target].validate(newValue);
-    }
-    if (this.basicFormFields[target].required && newValue.trim().length === 0) {
-      validMsg = 'is required';
-    }
-
-    if (validMsg) {
-      validMsg = `${this.basicFormFields[target].title} ${validMsg}`;
-    }
-
-    const basicVmSettings = {
-      ...this.state.basicVmSettings,
-      [target]: {
-        value: newValue,
-        validMsg
+    stepData: [
+      {
+        value: {}, // Basic Settings
+        valid: false
+      },
+      {
+        value: '',
+        valid: null // result of the request
       }
-    };
-    this.setState({
-      basicVmSettings
-    });
-    this.validateWizard(basicVmSettings);
+    ]
   };
 
-  validateWizard = values => {
-    let wizardValid = true;
+  onStepDataChanged = (value, valid) => {
+    this.setState(state => {
+      const stepData = [...state.stepData];
+      stepData[state.activeStepIndex] = { value, valid };
 
-    // check if all required fields are defined
-    const requiredKeys = Object.keys(this.basicFormFields).filter(key => this.isFieldRequired(key, values));
-    const requiredKeysInValues = Object.keys(values).filter(key => this.isFieldRequired(key, values));
-    if (requiredKeys.length !== requiredKeysInValues.length) {
-      wizardValid = false;
+      return { stepData };
+    });
+  };
+
+  getLastStepIndex = () => this.state.stepData.length - 1;
+  lastStepReached = () => this.state.activeStepIndex === this.getLastStepIndex();
+
+  onStepChanged = newActiveStepIndex => {
+    // create Vm only once last step is reached
+    if (!this.lastStepReached() && newActiveStepIndex === this.getLastStepIndex()) {
+      createVM(this.state.stepData[0].value)
+        .then(result => this.onStepDataChanged(result, true))
+        .catch(error => this.onStepDataChanged(error.message, false));
     }
 
-    // check if all fields are valid
-    for (const key in values) {
+    this.setState(state => {
       if (
-        values[key].validMsg &&
-        (this.basicFormFields[key].isVisible ? this.basicFormFields[key].isVisible(values) : true)
+        state.activeStepIndex !== state.stepData.length - 1 && // do not allow going back once last step is reached
+        (newActiveStepIndex < state.activeStepIndex || // allow going back to past steps
+          state.stepData.slice(0, newActiveStepIndex).reduce((validity, item) => validity && item.valid, true))
       ) {
-        wizardValid = false;
-        break;
+        return { activeStepIndex: newActiveStepIndex };
       }
-    }
-
-    this.setState({
-      wizardValid
+      return null;
     });
-  };
-
-  isFieldRequired = (key, basicVmSettings) =>
-    this.basicFormFields[key].required &&
-    (this.basicFormFields[key].isVisible ? this.basicFormFields[key].isVisible(basicVmSettings) : true);
-
-  basicFormFields = {
-    name: {
-      title: 'Name',
-      required: true
-    },
-    description: {
-      title: 'Description',
-      type: 'textarea'
-    },
-    namespace: {
-      id: 'namespace-dropdown',
-      title: 'Namespace',
-      type: 'dropdown',
-      defaultValue: '--- Select Namespace ---',
-      choices: this.props.namespaces,
-      required: true
-    },
-    imageSourceType: {
-      id: 'image-source-type-dropdown',
-      title: 'Provision Source',
-      type: 'dropdown',
-      defaultValue: '--- Select Provision Source ---',
-      choices: [
-        {
-          name: 'PXE'
-        },
-        {
-          name: 'URL'
-        },
-        {
-          name: 'Template'
-        },
-        {
-          name: 'Registry'
-        }
-      ],
-      required: true
-    },
-    template: {
-      id: 'template-dropdown',
-      title: 'Template',
-      type: 'dropdown',
-      defaultValue: '--- Select Template ---',
-      required: true,
-      isVisible: basicVmSettings => get(basicVmSettings, 'imageSourceType.value') === 'Template',
-      choices: this.props.templates
-    },
-    registryImage: {
-      title: 'Registry Image',
-      required: true,
-      isVisible: basicVmSettings => get(basicVmSettings, 'imageSourceType.value') === 'Registry'
-    },
-    imageURL: {
-      title: 'URL',
-      required: true,
-      isVisible: basicVmSettings => get(basicVmSettings, 'imageSourceType.value') === 'URL'
-    },
-    operatingSystem: {
-      id: 'operating-system-dropdown',
-      title: 'Operating System',
-      type: 'dropdown',
-      defaultValue: '--- Select Operating System ---',
-      choices: this.props.operatingSystems,
-      required: true
-    },
-    flavor: {
-      id: 'flavor-dropdown',
-      title: 'Flavor',
-      type: 'dropdown',
-      defaultValue: '--- Select Flavor ---',
-      choices: this.props.flavors.concat([{ name: 'Custom' }]),
-      required: true
-    },
-    memory: {
-      title: 'Memory (GB)',
-      required: true,
-      isVisible: basicVmSettings => get(basicVmSettings, 'flavor.value', '') === 'Custom',
-      validate: currentValue => (isPositiveNumber(currentValue) ? undefined : 'must be a number')
-    },
-    cpu: {
-      title: 'CPUs',
-      required: true,
-      isVisible: basicVmSettings => get(basicVmSettings, 'flavor.value', '') === 'Custom',
-      validate: currentValue => (isPositiveNumber(currentValue) ? undefined : 'must be a number')
-    },
-    workloadProfile: {
-      id: 'workload-profile-dropdown',
-      title: 'Workload Profile',
-      type: 'dropdown',
-      defaultValue: '--- Select Workload Profile ---',
-      choices: this.props.workloadProfiles,
-      required: true,
-      help: () =>
-        this.props.workloadProfiles.map(value => (
-          <p key={value.id}>
-            <b>{value.name}</b>: {value.description}
-          </p>
-        ))
-    },
-    startVM: {
-      title: 'Start virtual machine on creation',
-      type: 'checkbox',
-      noBottom: true
-    },
-    createTemplate: {
-      title: 'Create new template from configuration',
-      type: 'checkbox',
-      noBottom: true
-    },
-    cloudInit: {
-      title: 'Use cloud-init',
-      type: 'checkbox'
-    },
-    hostname: {
-      title: 'Hostname',
-      isVisible: basicVmSettings => get(basicVmSettings, 'cloudInit.value', false),
-      required: true
-    },
-    authKeys: {
-      title: 'Authenticated SSH Keys',
-      type: 'textarea',
-      isVisible: basicVmSettings => get(basicVmSettings, 'cloudInit.value', false),
-      required: true
-    }
   };
 
   wizardStepsNewVM = [
     {
       title: 'Basic Settings',
       render: () => (
-        <FormFactory
-          fields={this.basicFormFields}
-          fieldsValues={this.state.basicVmSettings}
-          onFormChange={this.onFormChange}
+        <BasicSettingsTab
+          key="1"
+          workloadProfiles={this.props.workloadProfiles}
+          flavors={this.props.flavors}
+          namespaces={this.props.namespaces}
+          operatingSystems={this.props.operatingSystems}
+          templates={this.props.templates}
+          basicSettings={this.state.stepData[0].value}
+          onChange={this.onStepDataChanged}
         />
       )
     },
     {
       title: 'Result',
       render: () => {
-        createVM(this.state.basicVmSettings, this.state.network, this.state.storage);
-        return <p>object visible in console</p>;
+        const stepData = this.state.stepData[this.getLastStepIndex()];
+        return <ResultTab result={stepData.value} successfull={stepData.valid} />;
       }
     }
   ];
 
-  onStepChanged = index => {
-    this.setState({ activeStepIndex: index });
-  };
-
   render() {
+    const beforeLastStepReached = this.state.activeStepIndex === this.state.stepData.length - 2;
+
     return (
       <Wizard.Pattern
         show
@@ -228,8 +87,10 @@ export class CreateVmWizard extends React.Component {
         steps={this.wizardStepsNewVM}
         activeStepIndex={this.state.activeStepIndex}
         onStepChanged={index => this.onStepChanged(index)}
-        nextStepDisabled={!this.state.wizardValid}
-        nextText={this.state.activeStepIndex === 0 ? 'Create Virtual Machine' : 'Next'}
+        previousStepDisabled={this.lastStepReached()}
+        stepButtonsDisabled={this.lastStepReached()}
+        nextStepDisabled={!this.state.stepData[this.state.activeStepIndex].valid}
+        nextText={beforeLastStepReached ? 'Create Virtual Machine' : 'Next'}
       />
     );
   }

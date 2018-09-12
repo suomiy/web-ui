@@ -7430,7 +7430,7 @@ patternfly-bootstrap-treeview@~2.1.0:
     bootstrap "3.3.x"
     jquery ">= 2.1.x"
 
-patternfly-react@^2.14.0:
+patternfly-react@^2.17.3:
   version "2.17.3"
   resolved "https://registry.yarnpkg.com/patternfly-react/-/patternfly-react-2.17.3.tgz#def0c43c5cef213d24ebbadc5dcdb88621150c0b"
   dependencies:
@@ -7453,6 +7453,7 @@ patternfly-react@^2.14.0:
     sortabular "^1.5.1"
     table-resolver "^3.2.0"
 
+<<<<<<< HEAD
 patternfly@^3.52.4:
   version "3.54.2"
   resolved "https://registry.yarnpkg.com/patternfly/-/patternfly-3.54.2.tgz#58b4b424462c4b01aaebf41db2da3bcd63bedfbf"
@@ -7485,6 +7486,9 @@ patternfly@^3.52.4:
     patternfly-bootstrap-treeview "~2.1.0"
 
 patternfly@^3.54.2:
+=======
+patternfly@^3.52.4, patternfly@^3.54.2:
+>>>>>>> refactor CreateVmWizard + add steps validation
   version "3.54.2"
   resolved "https://registry.yarnpkg.com/patternfly/-/patternfly-3.54.2.tgz#58b4b424462c4b01aaebf41db2da3bcd63bedfbf"
   dependencies:
