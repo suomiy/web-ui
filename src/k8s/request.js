@@ -10,13 +10,14 @@ import {
   PARAM_VM_NAME,
   CUSTOM_FLAVOR,
   PROVISION_SOURCE_REGISTRY,
-  PROVISION_SOURCE_URL
+  PROVISION_SOURCE_URL,
+  DEFAULT_NETWORK_NAME
 } from '../constants';
 import { VirtualMachineModel, ProcessedTemplatesModel } from '../models';
 import { getTemplatesWithLabels } from '../utils/template';
-import { getOsLabel, getWorkloadLabel, getFlavorLabel } from './selectors';
+import { getOsLabel, getWorkloadLabel, getFlavorLabel, getChosenTemplateAnnotations } from './selectors';
 
-export const createVM = (k8sCreate, templates, basicSettings) => {
+export const createVM = (k8sCreate, templates, basicSettings, storage) => {
   const availableTemplates = getTemplatesWithLabels(templates, [
     getOsLabel(basicSettings),
     getWorkloadLabel(basicSettings),
@@ -39,7 +40,7 @@ export const createVM = (k8sCreate, templates, basicSettings) => {
 
   return k8sCreate(ProcessedTemplatesModel, basicSettings.chosenTemplate).then(response => {
     const vm = response.objects.find(obj => obj.kind === VM_KIND);
-    modifyVmObject(vm, basicSettings);
+    modifyVmObject(vm, basicSettings, storage);
     return k8sCreate(VirtualMachineModel, vm);
   });
 };
@@ -56,7 +57,7 @@ const setParameterValue = (template, paramName, paramValue) => {
   parameter.value = paramValue;
 };
 
-const modifyVmObject = (vm, basicSettings) => {
+const modifyVmObject = (vm, basicSettings, storages) => {
   setFlavor(vm, basicSettings);
   setSourceType(vm, basicSettings);
 
@@ -74,11 +75,12 @@ const modifyVmObject = (vm, basicSettings) => {
   }
 
   addCloudInit(vm, basicSettings);
+  addStorages(vm, basicSettings, storages);
 };
 
 const setSourceType = (vm, basicSettings) => {
-  const defaultDiskName = get(basicSettings.chosenTemplate.metadata.annotations, [ANNOTATION_DEFAULT_DISK]);
-  const defaultNetworkName = get(basicSettings.chosenTemplate.metadata.annotations, [ANNOTATION_DEFAULT_NETWORK]);
+  const defaultDiskName = getChosenTemplateAnnotations(basicSettings, ANNOTATION_DEFAULT_DISK);
+  const defaultNetworkName = getChosenTemplateAnnotations(basicSettings, ANNOTATION_DEFAULT_NETWORK);
 
   const defaultDisk = getDefaultDevice(vm, 'disks', defaultDiskName);
   let defaultNetwork = getDefaultDevice(vm, 'interfaces', defaultNetworkName);
@@ -133,7 +135,7 @@ const setSourceType = (vm, basicSettings) => {
       if (!defaultNetwork) {
         defaultNetwork = {
           type: 'pod-network',
-          name: 'default-network',
+          name: DEFAULT_NETWORK_NAME,
           model: 'virtio'
         };
         addInterface(vm, defaultNetwork);
@@ -188,10 +190,97 @@ const addCloudInit = (vm, basicSettings) => {
   }
 };
 
-const addDisk = (vm, diskSpec) => {
+const addStorages = (vm, basicSettings, storages) => {
+  if (storages) {
+    for (const storage of storages) {
+      if (storage.attachStorage) {
+        addPersistentVolumeClaimVolume(vm, basicSettings, storage);
+      } else {
+        addDataVolume(vm, basicSettings, storage);
+      }
+    }
+  }
+};
+
+const addDataVolume = (vm, basicSettings, volume) => {
+  addDataVolumeTemplate({
+    metadata: {
+      name: volume.name
+    },
+    spec: {
+      accessModes: ['ReadWriteOnce'],
+      pvc: {
+        resources: {
+          requests: {
+            storage: `${volume.size}Gi`
+          }
+        },
+        storageClassName: volume.storageClass
+      },
+      source: {}
+    },
+    status: {}
+  });
+
+  addVolume(vm, {
+    name: volume.name,
+    dataVolume: {
+      name: volume.name
+    }
+  });
+
+  addBootableDisk(
+    vm,
+    basicSettings,
+    {
+      name: volume.name,
+      volumeName: volume.name,
+      disk: {}
+    },
+    volume.isBootable
+  );
+};
+
+const addPersistentVolumeClaimVolume = (vm, basicSettings, volume) => {
+  addVolume(vm, {
+    name: volume.attachStorage.id,
+    persistentVolumeClaim: {
+      claimName: volume.attachStorage.id
+    }
+  });
+
+  addBootableDisk(
+    vm,
+    basicSettings,
+    {
+      name: volume.attachStorage.id,
+      volumeName: volume.attachStorage.id,
+      disk: {}
+    },
+    volume.isBootable
+  );
+};
+
+const addBootableDisk = (vm, basicSettings, diskSpec, isBootable) => {
+  const defaultNetworkName = getChosenTemplateAnnotations(basicSettings, ANNOTATION_DEFAULT_NETWORK);
+
+  let bootOrder;
+  if (isBootable) {
+    bootOrder = hasInterface(vm, defaultNetworkName) || hasInterface(vm, DEFAULT_NETWORK_NAME) ? 2 : 1;
+  }
+
+  addDisk(vm, diskSpec, bootOrder);
+};
+
+const addDisk = (vm, diskSpec, bootOrder) => {
   const domain = get(vm.spec.template.spec, 'domain', {});
   const devices = get(domain, 'devices', {});
   const disks = get(devices, 'disks', []);
+
+  if (bootOrder) {
+    diskSpec.bootOrder = bootOrder;
+  }
+
   disks.push(diskSpec);
   devices.disks = disks;
   domain.devices = devices;
@@ -218,6 +307,12 @@ const addInterface = (vm, interfaceSpec) => {
   devices.interfaces = interfaces;
   domain.devices = devices;
   vm.spec.template.spec.domain = domain;
+};
+
+const hasInterface = (vm, networkName) => {
+  const domain = get(vm.spec.template.spec, 'domain', {});
+  const devices = get(domain, 'devices', {});
+  return get(devices, 'interfaces', []).find(ifc => ifc.name === networkName);
 };
 
 const addAnnotation = (vm, key, value) => {

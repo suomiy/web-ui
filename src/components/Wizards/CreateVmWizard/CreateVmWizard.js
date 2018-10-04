@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Wizard } from 'patternfly-react';
 
 import BasicSettingsTab from './BasicSettingsTab';
+import StorageTab from './StorageTab';
 import ResultTab from './ResultTab';
 
 import { createVM } from '../../../k8s/request';
@@ -14,6 +15,10 @@ export class CreateVmWizard extends React.Component {
       {
         value: {}, // Basic Settings
         valid: false
+      },
+      {
+        value: [], // Disks
+        valid: true // empty Disks are valid
       },
       {
         value: '',
@@ -80,6 +85,17 @@ export class CreateVmWizard extends React.Component {
       )
     },
     {
+      title: 'Storage',
+      render: () => (
+        <StorageTab
+          storageClasses={this.props.storageClasses}
+          storages={this.props.storages}
+          initialDisks={this.state.stepData[1].value}
+          onChange={this.onStepDataChanged}
+        />
+      )
+    },
+    {
       title: 'Result',
       render: () => {
         const stepData = this.state.stepData[this.getLastStepIndex()];
@@ -111,5 +127,7 @@ CreateVmWizard.propTypes = {
   onHide: PropTypes.func.isRequired,
   templates: PropTypes.array.isRequired,
   namespaces: PropTypes.array.isRequired,
+  storages: PropTypes.array.isRequired,
+  storageClasses: PropTypes.array.isRequired,
   k8sCreate: PropTypes.func.isRequired
 };

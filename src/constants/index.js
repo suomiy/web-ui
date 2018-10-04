@@ -22,5 +22,6 @@ export const PARAM_VM_NAME = 'NAME';
 export const PROVISION_SOURCE_URL = 'URL';
 export const PROVISION_SOURCE_PXE = 'PXE';
 export const PROVISION_SOURCE_REGISTRY = 'Registry';
+export const DEFAULT_NETWORK_NAME = 'default-network';
 
 export const templates = [fedora28, ubuntu1804, rhel75, rhelHighPerformance];

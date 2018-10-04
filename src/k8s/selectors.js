@@ -43,3 +43,6 @@ export const getFlavors = (basicSettings, templates) => {
   flavors.push(CUSTOM_FLAVOR);
   return flavors;
 };
+
+export const getChosenTemplateAnnotations = (basicSettings, name) =>
+  get(basicSettings.chosenTemplate.metadata.annotations, [name]);
