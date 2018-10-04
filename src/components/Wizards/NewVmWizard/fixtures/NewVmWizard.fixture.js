@@ -20,6 +20,50 @@ export const namespaces = [
   }
 ];
 
+export const storageClasses = [
+  {
+    name: 'NFS',
+    id: 'nfs'
+  },
+  {
+    name: 'iSCSI',
+    id: 'iscsi'
+  },
+  {
+    name: 'Glusterfs',
+    id: 'glusterfs'
+  },
+  {
+    name: 'AzureDisk',
+    id: 'azuredisk'
+  },
+  {
+    name: 'Local',
+    id: 'local'
+  }
+];
+
+export const storages = [
+  {
+    id: 'disk-one',
+    name: 'disk One',
+    size: '10',
+    storageClass: 'nfs'
+  },
+  {
+    id: 'disk-two',
+    name: 'disk Two',
+    size: '15',
+    storageClass: 'glusterfs'
+  },
+  {
+    id: 'disk-three',
+    name: 'disk Three',
+    size: '20',
+    storageClass: 'iscsi'
+  }
+];
+
 const processTemplate = template =>
   new Promise((resolve, reject) => {
     const nameParam = template.parameters.find(param => param.name === 'NAME');
@@ -40,6 +84,8 @@ export default {
     onHide: () => {},
     templates,
     namespaces,
+    storageClasses,
+    storages,
     k8sCreate
   }
 };

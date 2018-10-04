@@ -1,5 +1,11 @@
 import { CreateVmWizard } from '..';
-import { templates, namespaces, k8sCreate } from '../../NewVmWizard/fixtures/NewVmWizard.fixture';
+import {
+  templates,
+  namespaces,
+  k8sCreate,
+  storages,
+  storageClasses
+} from '../../NewVmWizard/fixtures/NewVmWizard.fixture';
 
 export default {
   component: CreateVmWizard,
@@ -7,6 +13,8 @@ export default {
     onHide: () => {},
     templates,
     namespaces,
+    storages,
+    storageClasses,
     k8sCreate
   }
 };
