@@ -12,7 +12,7 @@ import {
   DropdownKebab,
   HelpBlock
 } from 'patternfly-react';
-import { getFormElement } from '../Forms/FormFactory';
+import { getFormElement } from '../Form/FormFactory';
 import { prefixedId } from '../../utils/utils';
 import InlineEditRow from './InlineEditRow';
 import {

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Wizard, Button } from 'patternfly-react';
 import { CreateVmWizard } from '../CreateVmWizard/CreateVmWizard';
-import { ButtonWithIcon } from '../../Buttons/ButtonWithIcon';
+import { ButtonWithIcon } from '../../Button/ButtonWithIcon';
 
 export class NewVmWizard extends React.Component {
   state = {

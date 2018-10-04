@@ -8,7 +8,7 @@ import {
   PARAM_VM_NAME
 } from '../../constants';
 
-import { templates, storages } from '../../components/Wizards/NewVmWizard/fixtures/NewVmWizard.fixture';
+import { templates, storages } from '../../components/Wizard/NewVmWizard/fixtures/NewVmWizard.fixture';
 
 const basicSettings = {
   name: {
