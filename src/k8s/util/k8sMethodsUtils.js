@@ -1,5 +1,8 @@
+import { safeDump } from 'js-yaml';
+
 import { getGeneratedName, getKind, getName } from '../../selectors';
 import { getFullResourceId } from '../../utils';
+
 import {
   ERROR,
   CREATED,
@@ -15,6 +18,8 @@ const k8sObjectToResult = ({ obj, content, message, isExpanded, isError }) => ({
   isExpanded,
   isError,
 });
+
+export const asYaml = resource => safeDump(resource, { skipInvalid: true });
 
 export const cleanupAndGetResults = async (enhancedK8sMethods, { message, failedObject, failedPatches }) => {
   const actualState = enhancedK8sMethods.getActualState(); // actual state will differ after cleanup
@@ -41,7 +46,7 @@ export const cleanupAndGetResults = async (enhancedK8sMethods, { message, failed
 
       return k8sObjectToResult({
         obj: resource,
-        content: resource,
+        content: asYaml(resource),
         message: failedToCleanup ? CREATED_WITH_FAILED_CLEANUP : CREATED_WITH_CLEANUP,
         isExpanded: failedToCleanup,
         isError: failedToCleanup,
@@ -58,7 +63,7 @@ export const cleanupAndGetResults = async (enhancedK8sMethods, { message, failed
     }),
     k8sObjectToResult({
       obj: failedObject,
-      content: failedPatches || failedObject,
+      content: failedPatches || asYaml(failedObject),
       message: failedPatches ? FAILED_TO_PATCH : FAILED_TO_CREATE,
       isError: true,
     }),
@@ -75,7 +80,7 @@ export const getResults = enhancedK8sMethods => ({
   valid: true,
   results: enhancedK8sMethods
     .getActualState()
-    .map(obj => k8sObjectToResult({ obj, content: obj, message: CREATED }))
+    .map(obj => k8sObjectToResult({ obj, content: asYaml(obj), message: CREATED }))
     .reverse(),
 });
 

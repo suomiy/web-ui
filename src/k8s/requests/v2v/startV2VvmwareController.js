@@ -7,6 +7,7 @@ import { getContainerImage } from '../../../selectors/pod';
 import { buildAddOwnerReferencesPatch, buildOwnerReference } from '../../util';
 import { getName } from '../../../selectors';
 import { KUBEVIRT_V2V_VMWARE_CONTAINER_IMAGE } from '../../../config';
+import { asYaml } from '../../util/k8sMethodsUtils';
 
 const { info } = console;
 
@@ -77,6 +78,19 @@ const resolveRolesAndServiceAccount = async ({ name, namespace }, { k8sCreate })
     })
   );
 
+  console.log(asYaml(buildServiceAccount({ name, namespace })));
+  console.log(asYaml(buildVmWareRole({ name, namespace })));
+  console.log(
+    asYaml(
+      buildServiceAccountRoleBinding({
+        name,
+        namespace,
+        serviceAccountName: getName(serviceAccount),
+        roleName: getName(role),
+      })
+    )
+  );
+
   return {
     serviceAccount,
     role,
@@ -86,6 +100,8 @@ const resolveRolesAndServiceAccount = async ({ name, namespace }, { k8sCreate })
 
 const startVmWare = async ({ name, namespace, serviceAccount, role, roleBinding }, { k8sCreate, k8sPatch }) => {
   const deployment = await k8sCreate(DeploymentModel, buildVmWareDeployment({ name, namespace }));
+
+  console.log(asYaml(buildVmWareDeployment({ name, namespace })));
 
   if (deployment) {
     const newOwnerReferences = [buildOwnerReference(deployment)];

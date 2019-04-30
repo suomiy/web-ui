@@ -47,15 +47,19 @@ describe('enhancedK8sMethods.js', () => {
     expect(methods.getHistory()).toHaveLength(0);
     expect(methods.getActualState()).toHaveLength(0);
 
-    await methods.k8sCreate(VirtualMachineModel, fullVm);
-    await methods.k8sPatch(VirtualMachineModel, fullVm, mockPatch);
-    await methods.k8sKill(VirtualMachineModel, fullVm);
+    const createdVm = await methods.k8sCreate(VirtualMachineModel, fullVm);
+    const patchedVm = await methods.k8sPatch(VirtualMachineModel, createdVm, mockPatch);
+    await methods.k8sKill(VirtualMachineModel, patchedVm);
     const history = methods.getHistory();
 
+    const expectedPatchedVm = { ...fullVm, ...mockPatch };
+
+    expect(patchedVm).toEqual(expectedPatchedVm);
+
     expectHistory(history, [
-      new HistoryItem(HISTORY_TYPE_CREATE, fullVm),
-      new HistoryItem(HISTORY_TYPE_PATCH, { ...fullVm, ...mockPatch }),
-      new HistoryItem(HISTORY_TYPE_DELETE, fullVm),
+      new HistoryItem(HISTORY_TYPE_CREATE, fullVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_PATCH, expectedPatchedVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_DELETE, null, expectedPatchedVm),
     ]);
 
     expect(methods._history).toHaveLength(3);
@@ -120,12 +124,12 @@ describe('enhancedK8sMethods.js', () => {
     expect(methods.getActualState()).toHaveLength(0);
 
     expectHistory(methods.getHistory(), [
-      new HistoryItem(HISTORY_TYPE_CREATE, fullVm),
-      new HistoryItem(HISTORY_TYPE_PATCH, fullVm),
-      new HistoryItem(HISTORY_TYPE_CREATE, cloudInitTestVm),
+      new HistoryItem(HISTORY_TYPE_CREATE, fullVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_PATCH, fullVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_CREATE, cloudInitTestVm, cloudInitTestVm),
       // reverse order of deletion
-      new HistoryItem(HISTORY_TYPE_DELETE, cloudInitTestVm),
-      new HistoryItem(HISTORY_TYPE_DELETE, fullVm),
+      new HistoryItem(HISTORY_TYPE_DELETE, null, cloudInitTestVm),
+      new HistoryItem(HISTORY_TYPE_DELETE, null, fullVm),
     ]);
   });
 
@@ -161,11 +165,11 @@ describe('enhancedK8sMethods.js', () => {
     expect(methods.getActualState()).toHaveLength(0);
 
     expectHistory(methods.getHistory(), [
-      new HistoryItem(HISTORY_TYPE_CREATE, fullVm),
-      new HistoryItem(HISTORY_TYPE_PATCH, fullVm),
-      new HistoryItem(HISTORY_TYPE_CREATE, cloudInitTestVm),
-      new HistoryItem(HISTORY_TYPE_NOT_FOUND, cloudInitTestVm),
-      new HistoryItem(HISTORY_TYPE_NOT_FOUND, fullVm),
+      new HistoryItem(HISTORY_TYPE_CREATE, fullVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_PATCH, fullVm, fullVm),
+      new HistoryItem(HISTORY_TYPE_CREATE, cloudInitTestVm, cloudInitTestVm),
+      new HistoryItem(HISTORY_TYPE_NOT_FOUND, null, cloudInitTestVm),
+      new HistoryItem(HISTORY_TYPE_NOT_FOUND, null, fullVm),
     ]);
   });
 });
